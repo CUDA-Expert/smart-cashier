@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="300" viewBox="0 0 1280 300" role="img" aria-labelledby="title desc">
+  <title id="title">Smart Cashier</title>
+  <desc id="desc">Vision assisted checkout with reviewable billing</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#071426"/>
+      <stop offset=".58" stop-color="#102A45"/>
+      <stop offset="1" stop-color="#09221F"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#34D399"/>
+    </linearGradient>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0H0V30" fill="none" stroke="#BFDBFE" stroke-opacity=".06"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="300" rx="22" fill="url(#bg)"/>
+  <rect width="1280" height="300" rx="22" fill="url(#grid)"/>
+  <rect x="60" y="55" width="104" height="4" rx="2" fill="url(#accent)"/>
+  <text x="60" y="116" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="700">Smart Cashier</text>
+  <text x="60" y="160" fill="#C3D6E8" font-family="Segoe UI, Arial, sans-serif" font-size="21">Vision assisted checkout with reviewable billing and controlled inventory updates</text>
+  <g transform="translate(60 207)">
+    <rect width="101" height="38" rx="19" fill="#102A4B" stroke="#60A5FA" stroke-opacity=".65"/>
+    <text x="24" y="25" fill="#DBEAFE" font-family="Segoe UI, Arial, sans-serif" font-size="15">YOLOv8</text>
+    <rect x="115" width="139" height="38" rx="19" fill="#10352C" stroke="#34D399" stroke-opacity=".55"/>
+    <text x="140" y="25" fill="#D1FAE5" font-family="Segoe UI, Arial, sans-serif" font-size="15">HUMAN REVIEW</text>
+  </g>
+  <g transform="translate(944 40)" fill="none">
+    <path d="M42 40h39l18 107h119l22-75H93" stroke="url(#accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="119" cy="185" r="13" stroke="#60A5FA" stroke-width="4"/>
+    <circle cx="205" cy="185" r="13" stroke="#34D399" stroke-width="4"/>
+    <rect x="110" y="76" width="42" height="42" rx="5" stroke="#60A5FA" stroke-width="3"/>
+    <rect x="164" y="85" width="39" height="49" rx="5" stroke="#34D399" stroke-width="3"/>
+    <path d="M99 147h119" stroke="#E2E8F0" stroke-width="3"/>
+    <g stroke="#94A3B8" stroke-width="2" stroke-dasharray="6 7" opacity=".55">
+      <rect x="92" y="58" width="128" height="93" rx="10"/>
+    </g>
+    <circle cx="220" cy="58" r="5" fill="#34D399"/>
+  </g>
+</svg>

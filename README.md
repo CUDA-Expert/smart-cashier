@@ -1,118 +1,94 @@
-# Smart Cashier
+<p align="center">
+  <img src="./assets/cover.svg" width="100%" alt="Smart Cashier" />
+</p>
 
-Smart Cashier is a computer vision checkout prototype that detects grocery
-products and turns the detections into a reviewable invoice.
+<p align="center">
+  <img src="https://img.shields.io/badge/Vision-YOLOv8-3B82F6?style=flat-square" alt="YOLOv8" />
+  <img src="https://img.shields.io/badge/Interface-Streamlit-FF4B4B?style=flat-square" alt="Streamlit" />
+  <img src="https://img.shields.io/badge/Public%20Edition-Case%20Study-334155?style=flat-square" alt="Public case study" />
+</p>
 
-It was developed as a university team project. Mohammed Yousef Rasheed focused
-on dataset construction, YOLOv8 training and tuning, and the vision checkout
-integration. The private source preserves the original contributor credit.
+A vision assisted checkout prototype that detects grocery products, connects
+them to inventory, and builds a reviewable invoice before any stock value
+changes.
 
-## The Problem
+> Developed collaboratively as a university team project. This repository is
+> the public product and engineering case study; source, checkpoint, and
+> inventory artifacts remain private.
 
-Retail object detection is harder than recognizing a product against a clean
-background. Real shelves introduce occlusion, repeated items, reflections,
-similar packaging, scale changes, and inconsistent lighting. A useful checkout
-system also needs to connect detections to prices and stock without allowing a
-model prediction to mutate inventory silently.
+## Product idea
 
-Smart Cashier treats detection as one part of a larger human reviewed workflow.
+Retail recognition is harder than detecting a product against a clean
+background. Shelves introduce occlusion, repeated items, reflections, similar
+packaging, scale changes, and inconsistent lighting.
 
-## Architecture
+Smart Cashier treats model output as a suggestion inside a controlled workflow,
+not as permission to modify inventory automatically.
 
-```text
-Image upload or camera
-          ↓
-YOLOv8 product detection
-          ↓
-Confidence and class review
-          ↓
-Exact or fuzzy inventory matching
-          ↓
-Invoice and quantity aggregation
-          ↓
-Human confirmation
-          ↓
-Inventory update
+<table>
+  <tr>
+    <td align="center"><strong>39</strong><br />grocery classes</td>
+    <td align="center"><strong>YOLOv8</strong><br />custom detector</td>
+    <td align="center"><strong>Human review</strong><br />before purchase</td>
+    <td align="center"><strong>Saudi riyals</strong><br />invoice output</td>
+  </tr>
+</table>
+
+## Checkout flow
+
+```mermaid
+flowchart LR
+    A[Image or camera] --> B[YOLOv8 detections]
+    B --> C[Confidence and class review]
+    C --> D[Inventory matching]
+    D --> E[Quantity and invoice]
+    E --> F{Human confirmation}
+    F -->|Confirm| G[Inventory update]
+    F -->|Revise| C
 ```
 
-## Experience
+## Engineering decisions
 
-1. Upload one or more product images or use the camera.
-2. Review the detections and confidence values.
-3. Confirm the items that belong in the basket.
-4. Match detected labels to the product database.
-5. Generate an invoice in Saudi riyals.
-6. Confirm the purchase to update inventory.
+| Decision | Why it matters |
+| --- | --- |
+| Human confirmation | Predictions remain suggestions until the basket is reviewed |
+| Exact and fuzzy matching | Model labels can be reconciled with inventory names |
+| Visible unmatched items | Unknown products are shown instead of silently mispriced |
+| Cached inference resources | The model and inventory are not reloaded on every interface action |
+| Delayed inventory mutation | Stock changes happen only after final confirmation |
 
-## System
+## Verified state
 
-* Ultralytics YOLOv8 object detector
-* 39 grocery product classes in the private project checkpoint
-* Streamlit interface
-* exact and fuzzy product matching
-* CSV inventory with price and stock
-* human confirmation before inventory mutation
+The preserved source baseline was reviewed on 29 July 2026 without submitting a
+purchase.
 
-## Engineering Decisions
+| Check | Result |
+| --- | --- |
+| Python compilation | Passed |
+| Required imports | Passed |
+| YOLO checkpoint loading | Passed |
+| Streamlit health endpoint | HTTP 200 |
+| Inventory mutation during verification | None |
 
-**Human confirmation first**
+## Current constraints
 
-Detections remain suggestions until the user confirms them. Inventory changes
-occur only after the final invoice is reviewed.
+1. CSV storage is a prototype, not a transactional inventory database.
+2. Matching depends on consistency between detector classes and inventory names.
+3. Transaction history and rollback are not yet implemented.
+4. Model results require one reconciled evaluation report before public metric claims.
+5. The checkpoint is tied to the original custom grocery classes.
 
-**Resilient product matching**
+## Public and private boundary
 
-Detected class names are normalized before matching. When exact matching fails,
-the application uses RapidFuzz or a deterministic standard library fallback.
+This public repository documents the product workflow, architecture, verified
+state, constraints, and roadmap. The full team source, trained checkpoint, and
+inventory baseline remain in a private development repository while data rights,
+model licensing, and contributor approval are reviewed.
 
-**Cached inference resources**
+## Roadmap
 
-Streamlit caches the YOLO model and inventory loading path so repeated interface
-interactions do not reload expensive resources unnecessarily.
-
-**Visible failure behavior**
-
-Unmatched products are shown with a warning and a zero price instead of being
-silently assigned to the wrong item.
-
-## Verified Baseline
-
-The private source baseline was checked without modification on 29 July 2026:
-
-* Python compilation passed
-* required imports passed
-* the bundled YOLO checkpoint loaded successfully
-* Streamlit started and returned HTTP 200 from its health endpoint
-
-No purchase confirmation was submitted during verification, so the inventory
-file was not changed.
-
-## Source Availability
-
-The complete team source, trained checkpoint, and inventory baseline are
-maintained in a private development repository. This public repository documents
-the system, contribution, evidence, limitations, and future direction without
-redistributing team artifacts.
-
-## Current Limitations
-
-* the CSV inventory is a prototype store, not a concurrent transaction database
-* product matching depends on consistency between model class names and inventory names
-* the interface does not yet persist a transaction history
-* evaluation figures from the project record and checkpoint metadata need one
-  reconciled, reproducible evaluation report before public metric claims
-* the bundled model is tied to the original custom grocery classes
-
-## Next Technical Milestones
-
-* create a versioned evaluation set with shelf level failure cases
-* publish per class precision, recall, and confusion analysis
-* replace CSV mutation with transactional inventory storage
-* add receipt history, rollback, and audit events
-* separate model configuration from interface code
-
-## Responsible Release Notes
-
-Any future source release must preserve complete team attribution, confirm the
-training data rights, remove embedded local path metadata if the team approves,
-and document the Ultralytics licensing obligations.
+1. Create a versioned shelf level evaluation set.
+2. Publish per class precision, recall, and confusion analysis.
+3. Replace CSV mutation with transactional storage.
+4. Add receipt history, rollback, and audit events.
+5. Separate model configuration from interface code.
