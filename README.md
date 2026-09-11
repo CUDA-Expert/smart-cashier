@@ -1,55 +1,72 @@
 <p align="center">
-  <img src="./assets/detections.jpg" width="70%" alt="Grid of YOLOv8 detections on real shelf and handheld photographs, with labelled boxes on Ulker tea biscuit, Quaker oats, Puck cream products, Rehan cocoa powder, and Pantene shampoo" />
+  <img src="./assets/portfolio-cover.webp" width="100%" alt="Smart Cashier project cover" />
 </p>
+<sub>Concept illustration. Actual project material appears below.</sub>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Vision-YOLOv8-3B82F6?style=flat-square" alt="YOLOv8" />
-  <img src="https://img.shields.io/badge/Interface-Streamlit-FF4B4B?style=flat-square" alt="Streamlit" />
-  <img src="https://img.shields.io/badge/Public%20Edition-Case%20Study-334155?style=flat-square" alt="Public case study" />
-</p>
+# Smart Cashier
 
-A vision assisted checkout prototype that detects grocery products, connects
-them to inventory, and builds a reviewable invoice before any stock value
-changes.
+**Grocery recognition connected to a reviewable checkout.**
 
-> Developed collaboratively as a university team project. This repository is
-> the public product and engineering case study; source, checkpoint, and
-> inventory artifacts remain private.
+A vision assisted prototype that detects products, matches them to inventory, and prepares an invoice in Saudi riyals. Stock changes require human confirmation.
 
-## Product idea
-
-Retail recognition is harder than detecting a product against a clean
-background. Shelves introduce occlusion, repeated items, reflections, similar
-packaging, scale changes, and inconsistent lighting.
-
-Smart Cashier treats model output as a suggestion inside a controlled workflow,
-not as permission to modify inventory automatically.
+> **My contribution:** I captured and cleaned images for the custom dataset, annotated products in YOLO format, trained and tuned the detector and its thresholds, and integrated inference into Streamlit.
+>
+> **Context:** Collaborative university team project.
+>
+> **Public edition:** Product and engineering case study. Team source, trained checkpoint, and inventory artifacts remain private.
 
 <table>
   <tr>
     <td align="center"><strong>39</strong><br />grocery classes</td>
+    <td align="center"><strong>9</strong><br />catalogue categories</td>
     <td align="center"><strong>YOLOv8</strong><br />custom detector</td>
     <td align="center"><strong>Human review</strong><br />before purchase</td>
-    <td align="center"><strong>Saudi riyals</strong><br />invoice output</td>
   </tr>
 </table>
 
-## Detector results
+## Detection examples
 
-Reported from the validation split of the original training run.
+<p align="center">
+  <img src="./assets/detections.jpg" width="100%" alt="YOLOv8 detection examples on shelf and handheld photographs, including grocery products and shampoo" />
+</p>
+
+The catalogue covers products found in Saudi supermarkets. Similar packaging, flavour variants, reflections, occlusion, and repeated items make recognition challenging.
+
+## Checkout workflow
+
+```mermaid
+flowchart LR
+    A[Image or camera] --> B[YOLOv8 detections]
+    B --> C[Confidence and class review]
+    C --> D[Inventory matching]
+    D --> E[Quantity and invoice]
+    E --> F{Human confirmation}
+    F -->|Confirm| G[Inventory update]
+    F -->|Revise| C
+```
+
+| Decision | Purpose |
+| --- | --- |
+| Review before purchase | A person checks predicted products and quantities |
+| Exact and fuzzy matching | Reconciles detector labels with inventory names |
+| Visible unmatched items | Exposes products that cannot be matched |
+| Cached inference resources | Avoids reloading the model and inventory on every interface action |
+| Delayed inventory changes | Applies stock updates only after final confirmation |
+
+## Reported detector results
+
+**Original training run, internal validation split.**
 
 | Metric | Value |
-| --- | --- |
+| --- | ---: |
 | mAP@0.5 | **0.9696** |
 | mAP@0.5:0.95 | **0.7620** |
 | Precision | 0.9238 |
 | Recall | 0.9492 |
 
-The gap between the two mAP figures is the honest part. At a 0.5 IoU threshold
-the detector finds the right product almost every time; held to stricter
-localisation it drops by about 21 points. For a checkout that reads *which*
-product is present rather than exactly where its edges fall, the first number is
-the operational one, but quoting it alone would overstate the model.
+These are detection metrics on the original validation split. They do not measure the probability of a correct checkout. Evaluation covered single products in frame; basket accuracy with repeated items and occlusion has not been established.
+
+mAP@0.5 uses an IoU threshold of 0.5. mAP@0.5:0.95 averages results across stricter overlap thresholds as well. Reporting both gives a fuller picture of localization performance.
 
 | Training setting | Value |
 | --- | --- |
@@ -59,10 +76,10 @@ the operational one, but quoting it alone would overstate the model.
 | Batch | 16 |
 | Framework | Ultralytics 8.3.129 |
 
-## Product catalogue
+A separate shelf evaluation set with precision, recall, and confusion analysis for each class remains future work.
 
-39 fine-grained classes grouped into 9 coarse categories, built around products
-actually stocked in Saudi supermarkets rather than a generic retail set.
+<details>
+<summary><strong>Explore the 39 class product catalogue</strong></summary>
 
 | Category | Classes | Examples |
 | --- | ---: | --- |
@@ -76,81 +93,42 @@ actually stocked in Saudi supermarkets rather than a generic retail set.
 | Sauces and spices | 2 | Noor cooking oil, Baidar natural vinegar |
 | Cleaning essentials | 1 | Pantene shampoo |
 
-Two properties of this catalogue drive the hard cases. Several classes differ
-only by flavour on near-identical packaging, which is a fine-grained
-classification problem wearing a detection costume. And the category
-distribution is heavily uneven, with eight grain classes against one cleaning
-class, so per-category performance cannot be assumed uniform from an aggregate
-score.
+Several classes differ only by flavour on similar packaging. The categories also contain unequal numbers of classes. Aggregate metrics do not establish uniform performance across the catalogue.
 
-## Checkout flow
+</details>
 
-```mermaid
-flowchart LR
-    A[Image or camera] --> B[YOLOv8 detections]
-    B --> C[Confidence and class review]
-    C --> D[Inventory matching]
-    D --> E[Quantity and invoice]
-    E --> F{Human confirmation}
-    F -->|Confirm| G[Inventory update]
-    F -->|Revise| C
-```
+## Documented verification
 
-## Engineering decisions
+The preserved source baseline was reviewed on **29 July 2026** without submitting a purchase.
 
-| Decision | Why it matters |
-| --- | --- |
-| Human confirmation | Predictions remain suggestions until the basket is reviewed |
-| Exact and fuzzy matching | Model labels can be reconciled with inventory names |
-| Visible unmatched items | Unknown products are shown instead of silently mispriced |
-| Cached inference resources | The model and inventory are not reloaded on every interface action |
-| Delayed inventory mutation | Stock changes happen only after final confirmation |
-
-## Verified state
-
-The preserved source baseline was reviewed on 29 July 2026 without submitting a
-purchase.
-
-| Check | Result |
+| Check | Reported result |
 | --- | --- |
 | Python compilation | Passed |
 | Required imports | Passed |
 | YOLO checkpoint loading | Passed |
 | Streamlit health endpoint | HTTP 200 |
-| Inventory mutation during verification | None |
+| Inventory changes during verification | None |
 
-## Current constraints
+These checks establish a limited runtime checkpoint. They do not verify a completed purchase or the correctness of inventory updates.
 
-1. CSV storage is a prototype, not a transactional inventory database.
-2. Matching depends on consistency between detector classes and inventory names.
-3. Transaction history and rollback are not yet implemented.
-4. The figures above come from the training run's own validation split. A
-   separate shelf-level evaluation set, with per-class precision, recall, and
-   confusion analysis, has not been produced yet.
-5. The checkpoint is tied to the original custom grocery classes.
-6. Detection is evaluated on single products in frame. Basket-level accuracy,
-   where occlusion and repeated items dominate, is not the same measurement.
+## Constraints and next steps
 
-## Licensing note
+| Current constraint | Planned work |
+| --- | --- |
+| Evaluation uses the original validation split | Create a versioned shelf evaluation set and publish results for each class |
+| CSV storage lacks transactional guarantees | Introduce transactional inventory storage |
+| Transaction history and rollback are absent | Add receipt history, rollback, and audit events |
+| Matching depends on inventory naming consistency | Improve the separation of catalogue and model configuration |
+| The checkpoint recognizes the original custom classes | Make the supported catalogue explicit in deployment configuration |
 
-The detector is built on Ultralytics YOLOv8, which is distributed under
-**AGPL-3.0**. That licence reaches any derived work that is conveyed or offered
-over a network, so any commercial deployment of this system would need either a
-full source release under the same terms or a commercial licence from
-Ultralytics. This is recorded here because it constrains how the prototype could
-be productised, not as an afterthought to resolve later.
+The interface uses **Streamlit** and the detector uses **Ultralytics YOLOv8**. Source, model licensing, and data rights require review before distribution or deployment.
 
-## Public and private boundary
+## Public scope and licensing
 
-This public repository documents the product workflow, architecture, verified
-state, constraints, and roadmap. The full team source, trained checkpoint, and
-inventory baseline remain in a private development repository while data rights,
-model licensing, and contributor approval are reviewed.
+This repository documents the workflow, architecture, reported results, verification boundary, and roadmap. The complete team source, checkpoint, and inventory baseline remain private while data rights, model licensing, and contributor approval are reviewed.
 
-## Roadmap
+Ultralytics YOLOv8 is distributed under **AGPL-3.0**. Its licensing terms and any applicable commercial licensing requirements must be considered before product deployment. This public case study does not grant a license to the private team artifacts.
 
-1. Create a versioned shelf level evaluation set.
-2. Publish per class precision, recall, and confusion analysis on that set.
-3. Replace CSV mutation with transactional storage.
-4. Add receipt history, rollback, and audit events.
-5. Separate model configuration from interface code.
+<p align="center">
+  <sub>Mohammed Yousef Rasheed · <a href="https://github.com/CUDA-Expert">GitHub</a> · <a href="https://www.linkedin.com/in/mohammed-rasheed-ai/">LinkedIn</a></sub>
+</p>
